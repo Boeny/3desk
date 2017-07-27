@@ -1,0 +1,24 @@
+{
+  "name": "3desk",
+  "version": "0.0.1",
+  "description": "webGL 3d file manager",
+  "scripts": {
+    "build": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/boeny/3desk.git"
+  },
+  "author": "boeny",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/boeny/3desk/issues"
+  },
+  "homepage": "https://github.com/boeny/3desk#readme",
+  "devDependencies": {
+    "webpack": "^3.4.1"
+  },
+  "dependencies": {
+    "3d": "^0.86.0"
+  }
+}

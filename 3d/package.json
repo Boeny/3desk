@@ -1,0 +1,11 @@
+{
+  "name": "3d",
+  "main": "index.js",
+  "version": "0.0.1",
+  "description": "webGL 3d framework",
+  "author": "boeny",
+  "license": "MIT",
+  "dependencies": {
+    "three": "^0.86.0"
+  }
+}
