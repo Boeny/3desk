@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 3);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -180,8 +180,10 @@ module.exports = g;
 			case 'onMouseMove':
 				return handler(
 					new THREE.Vector2(e.clientX, e.clientY),
-					e.movementX || e.mozMovementX || e.webkitMovementX || 0,
-					e.movementY || e.mozMovementY || e.webkitMovementY || 0
+					new THREE.Vector2(
+						e.movementX || e.mozMovementX || e.webkitMovementX || 0,
+						e.movementY || e.mozMovementY || e.webkitMovementY || 0
+					)
 				);
 			
 			case 'onMouseWheel':
@@ -224,186 +226,18 @@ module.exports = g;
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports) {
-
-module.exports = {
-	mesh: [],
-	data: [
-		{name: '.git',	isFolder: true},
-		{name: '3d',	isFolder: true},
-		{name: 'dist',	isFolder: true},
-		{name: 'simple-server',	isFolder: true},
-		{name: 'src',			isFolder: true},
-		
-		{name: 'LICENSE',		isFolder: false},
-		{name: '.gitignore',	isFolder: false},
-		{name: 'package.json',	isFolder: false},
-		{name: 'README.md',		isFolder: false},
-		{name: 'webpack.config.js',	isFolder: false},
-		{name: 'webpack.config.prod.js',	isFolder: false},
-	],
-	
-	Start: function(){
-		let geometry = new THREE.BoxGeometry(20, 20, 20);
-		
-		for (var i = 0; i < geometry.faces.length; i++) {
-			let face = geometry.faces[i];
-			face.vertexColors[0] = new THREE.Color().setHSL( random(0.5, 0.8), 0.75, random(0.75, 1) );
-			face.vertexColors[1] = new THREE.Color().setHSL( random(0.5, 0.8), 0.75, random(0.75, 1) );
-			face.vertexColors[2] = new THREE.Color().setHSL( random(0.5, 0.8), 0.75, random(0.75, 1) );
-		}
-		
-		let material = new THREE.MeshPhongMaterial({
-			specular: 0xffffff,
-			shading: THREE.FlatShading,
-			vertexColors: THREE.VertexColors
-		});
-		
-		for (i = 0; i < this.data.length; i++) {
-			material.color.setHSL( random(0.5, 0.7), 0.75, random(0.75, 1) );
-			
-			let mesh = new THREE.Mesh(geometry, material);
-			mesh.position.x = random(-200, 200);
-			mesh.position.y = random(-200, 200);
-			mesh.position.z = random(-200, 200);
-			mesh.castShadow = true;
-			mesh.receiveShadow = true;
-			
-			let textElem = document.createElement('div');
-			textElem.className = 'title';
-			textElem.innerHTML = this.data[i].name;
-			mesh.textElem = textElem;
-			document.body.appendChild(textElem);
-			
-			this.mesh.push(mesh);
-		}
-	}
-};
-
-/***/ }),
-/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
+var parts = [
+	//'touch',
+	'mouse',
+	//'keys',
+];
 
-global.random = function(min, max){
-	return Math.random() * (max - min) + min;
-};
-
-__webpack_require__(4)([
-	__webpack_require__(6),
-	__webpack_require__(7),
-	__webpack_require__(2),
-	__webpack_require__(1),
-]);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {var { Start, Update } = __webpack_require__(5);
-var scene, camera, renderer, objects = [];
-var options = {
-	viewAngle: 60,
-	nearClip: 1,
-	farClip: 1000
-};
-//global.THREE = require('three');
-
-global.onload = function(){
-	scene = new THREE.Scene();
-	
-	camera = new THREE.PerspectiveCamera(options.viewAngle, global.innerWidth / global.innerHeight, options.nearClip, options.farClip);
-	camera.lookAt( scene.position );
-	
-	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setPixelRatio( global.devicePixelRatio );
-	renderer.setSize( global.innerWidth, global.innerHeight );
-	document.body.appendChild( renderer.domElement );
-	
-	Start(scene, camera, renderer, objects);
-	render();
-};
-
-function render() {
-	requestAnimationFrame(render);
-	Update();
-	renderer.render(scene, camera);// render the scene
-}
-
-module.exports = function(models, _opts){
-	if (!models) return;
-	
-	merge(options, _opts || {});
-	for (var i = 0; i < models.length; i++){
-		objects.push(models[i]);
-	}
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {global.merge = function(o1, o2){
-	if (!o1) o1 = {};
-	var keys = Object.keys(o2 || {});
-	
-	for (var i = 0; i < keys.length; i++){
-		o1[keys[i]] = o2[keys[i]];
-	}
-	return o1;
-};
-
-var objects, updates = [];
-
-exports.Start = function(scene, camera, renderer, objs){
-	objects = objs;
-	
-	for (var i in objects){
-		let o = objects[i];
-		
-		o.objects = objs;
-		o.scene = scene;
-		o.camera = camera;
-		o.renderer = renderer;
-		
-		o.Start();
-		
-		if (o.mesh){
-			if (o.mesh instanceof Array){
-				for (var j = 0; j < o.mesh.length; j++){
-					scene.add(o.mesh[j]);
-				}
-			}
-			else{
-				scene.add(o.mesh);
-			}
-		}
-		
-		if (o.Update) updates.push(o.Update.bind(o));
-	}
-};
-
-exports.Update = function(){
-	for (var i = 0; i < updates.length; i++){
-		updates[i]();
-	}
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {var controls = __webpack_require__(1);
-var shapes = __webpack_require__(2);
-
-module.exports = {
+var Controller = {
 	mesh: new THREE.Object3D(),
 	mouse: new THREE.Vector2(),
+	points: [],
 	raycaster: new THREE.Raycaster(),
 	
 	moveForward: false,
@@ -420,7 +254,22 @@ module.exports = {
 	velocity: new THREE.Vector3(),
 	angularVelocity: new THREE.Vector3(),
 	PI_2: Math.PI / 2,
-	
+};
+
+for (var i = 0; i < parts.length; i++){
+	merge(Controller, __webpack_require__(10)("./controller."+parts[i]));
+}
+
+module.exports = Controller;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var controls = __webpack_require__(1);
+//var shapes = require('./shapes');
+
+var Controller = {
 	Start: function(){
 		this.camera.position.z = 500;
 		this.scene.fog = new THREE.FogExp2( 0xcccccc, 0.002 );
@@ -477,16 +326,15 @@ module.exports = {
 	
 	//----------------------------------------------- INTERACTIONS
 	
-	startActions: function(dx, dy){
+	startActions: function(d){
 		if (this.canRotate){
 			this.rotating = true;
-			this.angularVelocity.y = dx * 0.002;
-			this.angularVelocity.x = dy * 0.002;
+			this.angularVelocity = d.mult(0.002);
 		}
 		if (this.canPan){
 			this.pan = true;
-			this.velocity.x -= dx / 10;
-			this.velocity.y += dy / 10;
+			d.x *= -1;
+			this.velocity = d.mult(0.1);
 		}
 	},
 	stopActions: function(clickCondition){
@@ -497,57 +345,19 @@ module.exports = {
 			}
 		}
 		this.canRotate = this.rotating = this.canPan = this.pan = false;
-	},
-	
-	//----------------------------------------------- EVENTS
-	
-	onTouchStart: function(points){
-		this.points = points;
-		
-		if (points.length > 1){
-			this.canPan = true;
-		}
-		else{
-			this.canRotate = true;
-		}
-	},
-	onTouchMove: function(points){
-		var p = this.points[0];
-		this.startActions(points[0].x - p.x, points[0].y - p.y);
-	},
-	onTouchEnd: function(points){
-		this.stopActions(points.length == 1);
-	},
-	
-	onMouseDown: function(btn){
-		switch (btn){
-			case controls.mouse.LEFT:
-				this.canRotate = true;
-				break;
-			
-			case controls.mouse.MIDDLE:
-				this.canPan = true;
-				break;
-		}
-	},
-	onMouseUp: function(btn){
-		this.stopActions(btn == controls.mouse.LEFT);
-	},
-	onMouseMove: function(p, dx, dy){
-		this.mouse.x = (p.x / global.innerWidth ) * 2 - 1;
-		this.mouse.y = -(p.y / global.innerHeight ) * 2 + 1;
-		
-		/*let intersects = this.getFirstIntersect();
-		if (intersects){
-			intersects.mesh.material.setColor();
-		}*/
-		
-		this.startActions(dx, dy);
-	},
-	onMouseWheel: function(delta){
-		this.velocity.z += delta / 10;
-	},
-	
+	}
+};
+
+module.exports = merge(Controller, __webpack_require__(2));
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var controls = __webpack_require__(1);
+
+module.exports = {
 	onKeyDown: function (key) {
 		switch (key) {
 			case controls.keys.UP:
@@ -568,9 +378,6 @@ module.exports = {
 			case controls.keys.RIGHT:
 			case controls.keys.D:
 				this.moveRight = true;
-				break;
-			
-			case controls.keys.SPACE:
 				break;
 		}
 	},
@@ -597,12 +404,229 @@ module.exports = {
 				this.moveRight = false;
 				break;
 		}
+	}
+};
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var controls = __webpack_require__(1);
+
+module.exports = {
+	onMouseDown: function(btn){
+		switch (btn){
+			case controls.mouse.LEFT:
+				this.canRotate = true;
+				break;
+			
+			case controls.mouse.MIDDLE:
+				this.canPan = true;
+				break;
+		}
 	},
+	
+	onMouseUp: function(btn){
+		this.stopActions(btn == controls.mouse.LEFT);
+	},
+	
+	onMouseMove: function(p, d){
+		this.mouse.x = (p.x / global.innerWidth ) * 2 - 1;
+		this.mouse.y = -(p.y / global.innerHeight ) * 2 + 1;
+		
+		/*let intersects = this.getFirstIntersect();
+		if (intersects){
+			intersects.mesh.material.setColor();
+		}*/
+		
+		this.startActions(d);
+	},
+	
+	onMouseWheel: function(delta){
+		this.velocity.z += delta / 10;
+	}
 };
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
+/* 6 */
+/***/ (function(module, exports) {
+
+module.exports = {
+	onTouchStart: function(points){
+		this.points = points;
+		
+		if (points.length > 1){
+			this.canPan = true;
+		}
+		else{
+			this.canRotate = true;
+		}
+	},
+	
+	onTouchMove: function(points){
+		var p = this.points[0];
+		this.startActions((points[0].x - p.x)/10, (points[0].y - p.y)/10);
+	},
+	
+	onTouchEnd: function(points){
+		this.stopActions(points.length == 1);
+	}
+};
+
+/***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+global.random = function(min, max){
+	return Math.random() * (max - min) + min;
+};/*
+THREE.Vector2.prototype.mult = function(v){
+	return new THREE.Vector2(v.x * this.x, v.y * this.y);
+};
+THREE.Vector3.prototype.mult = function(v){
+	return new THREE.Vector3(v.x * this.x, v.y * this.y, v.z * this.z);
+};*/
+
+__webpack_require__(8)([
+	__webpack_require__(3),
+	__webpack_require__(11),
+	__webpack_require__(12),
+	__webpack_require__(1),
+]);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var { Start, Update } = __webpack_require__(9);
+var scene, camera, renderer, objects = [];
+var options = {
+	viewAngle: 60,
+	nearClip: 1,
+	farClip: 1000
+};
+//global.THREE = require('three');
+
+global.onload = function(){
+	scene = new THREE.Scene();
+	
+	camera = new THREE.PerspectiveCamera(options.viewAngle, global.innerWidth / global.innerHeight, options.nearClip, options.farClip);
+	camera.lookAt( scene.position );
+	
+	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer.setPixelRatio( global.devicePixelRatio );
+	renderer.setSize( global.innerWidth, global.innerHeight );
+	document.body.appendChild( renderer.domElement );
+	
+	Start(scene, camera, renderer, objects);
+	render();
+};
+
+function render() {
+	requestAnimationFrame(render);
+	Update();
+	renderer.render(scene, camera);// render the scene
+}
+
+module.exports = function(models, _opts){
+	if (!models) return;
+	
+	merge(options, _opts || {});
+	for (var i = 0; i < models.length; i++){
+		objects.push(models[i]);
+	}
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {global.merge = function(o1, o2){
+	if (!o1) o1 = {};
+	var keys = Object.keys(o2 || {});
+	
+	for (var i = 0; i < keys.length; i++){
+		o1[keys[i]] = o2[keys[i]];
+	}
+	return o1;
+};
+
+var objects, updates = [];
+
+exports.Start = function(scene, camera, renderer, objs){
+	objects = objs;
+	
+	for (var i in objects){
+		let o = objects[i];
+		
+		o.objects = objs;
+		o.scene = scene;
+		o.camera = camera;
+		o.renderer = renderer;
+		
+		o.Start();
+		
+		if (o.mesh){
+			if (o.mesh instanceof Array){
+				for (var j = 0; j < o.mesh.length; j++){
+					scene.add(o.mesh[j]);
+				}
+			}
+			else{
+				scene.add(o.mesh);
+			}
+		}
+		
+		if (o.Update) updates.push(o.Update.bind(o));
+	}
+};
+
+exports.Update = function(){
+	for (var i = 0; i < updates.length; i++){
+		updates[i]();
+	}
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var map = {
+	"./controller.config": 2,
+	"./controller.config.js": 2,
+	"./controller.js": 3,
+	"./controller.keys": 4,
+	"./controller.keys.js": 4,
+	"./controller.mouse": 5,
+	"./controller.mouse.js": 5,
+	"./controller.touch": 6,
+	"./controller.touch.js": 6
+};
+function webpackContext(req) {
+	return __webpack_require__(webpackContextResolve(req));
+};
+function webpackContextResolve(req) {
+	var id = map[req];
+	if(!(id + 1)) // check for number or string
+		throw new Error("Cannot find module '" + req + "'.");
+	return id;
+};
+webpackContext.keys = function webpackContextKeys() {
+	return Object.keys(map);
+};
+webpackContext.resolve = webpackContextResolve;
+module.exports = webpackContext;
+webpackContext.id = 10;
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -619,6 +643,64 @@ module.exports = {
 		var light = new THREE[type+'Light'](...args);
 		if (pos) light.position.set(...pos);
 		return light;
+	}
+};
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports) {
+
+module.exports = {
+	mesh: [],
+	data: [
+		{name: '.git',	isFolder: true},
+		{name: '3d',	isFolder: true},
+		{name: 'dist',	isFolder: true},
+		{name: 'simple-server',	isFolder: true},
+		{name: 'src',			isFolder: true},
+		
+		{name: 'LICENSE',		isFolder: false},
+		{name: '.gitignore',	isFolder: false},
+		{name: 'package.json',	isFolder: false},
+		{name: 'README.md',		isFolder: false},
+		{name: 'webpack.config.js',	isFolder: false},
+		{name: 'webpack.config.prod.js',	isFolder: false},
+	],
+	
+	Start: function(){
+		let geometry = new THREE.BoxGeometry(20, 20, 20);
+		
+		for (var i = 0; i < geometry.faces.length; i++) {
+			let face = geometry.faces[i];
+			face.vertexColors[0] = new THREE.Color().setHSL( random(0.5, 0.8), 0.75, random(0.75, 1) );
+			face.vertexColors[1] = new THREE.Color().setHSL( random(0.5, 0.8), 0.75, random(0.75, 1) );
+			face.vertexColors[2] = new THREE.Color().setHSL( random(0.5, 0.8), 0.75, random(0.75, 1) );
+		}
+		
+		let material = new THREE.MeshPhongMaterial({
+			specular: 0xffffff,
+			shading: THREE.FlatShading,
+			vertexColors: THREE.VertexColors
+		});
+		
+		for (i = 0; i < this.data.length; i++) {
+			material.color.setHSL( random(0.5, 0.7), 0.75, random(0.75, 1) );
+			
+			let mesh = new THREE.Mesh(geometry, material);
+			mesh.position.x = random(-200, 200);
+			mesh.position.y = random(-200, 200);
+			mesh.position.z = random(-200, 200);
+			mesh.castShadow = true;
+			mesh.receiveShadow = true;
+			
+			let textElem = document.createElement('div');
+			textElem.className = 'title';
+			textElem.innerHTML = this.data[i].name;
+			mesh.textElem = textElem;
+			document.body.appendChild(textElem);
+			
+			this.mesh.push(mesh);
+		}
 	}
 };
 

@@ -84,8 +84,10 @@ module.exports = {
 			case 'onMouseMove':
 				return handler(
 					new THREE.Vector2(e.clientX, e.clientY),
-					e.movementX || e.mozMovementX || e.webkitMovementX || 0,
-					e.movementY || e.mozMovementY || e.webkitMovementY || 0
+					new THREE.Vector2(
+						e.movementX || e.mozMovementX || e.webkitMovementX || 0,
+						e.movementY || e.mozMovementY || e.webkitMovementY || 0
+					)
 				);
 			
 			case 'onMouseWheel':
