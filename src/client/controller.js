@@ -75,7 +75,49 @@ module.exports = {
 		return intersects.length > 0 ? intersects[0] : null;
 	},
 	
+	//----------------------------------------------- INTERACTIONS
+	
+	startActions: function(dx, dy){
+		if (this.canRotate){
+			this.rotating = true;
+			this.angularVelocity.y = dx * 0.002;
+			this.angularVelocity.x = dy * 0.002;
+		}
+		if (this.canPan){
+			this.pan = true;
+			this.velocity.x -= dx / 10;
+			this.velocity.y += dy / 10;
+		}
+	},
+	stopActions: function(clickCondition){
+		if (clickCondition && !this.rotating){
+			let intersects = this.getFirstIntersect();
+			if (intersects){
+				this.mesh.lookAt(intersects.point);
+			}
+		}
+		this.canRotate = this.rotating = this.canPan = this.pan = false;
+	},
+	
 	//----------------------------------------------- EVENTS
+	
+	onTouchStart: function(points){
+		this.points = points;
+		
+		if (points.length > 1){
+			this.canPan = true;
+		}
+		else{
+			this.canRotate = true;
+		}
+	},
+	onTouchMove: function(points){
+		var p = this.points[0];
+		this.startActions(points[0].x - p.x, points[0].y - p.y);
+	},
+	onTouchEnd: function(points){
+		this.stopActions(points.length == 1);
+	},
 	
 	onMouseDown: function(btn){
 		switch (btn){
@@ -89,17 +131,7 @@ module.exports = {
 		}
 	},
 	onMouseUp: function(btn){
-		switch (btn){
-			case controls.mouse.LEFT:
-				if (!this.rotating){
-					let intersects = this.getFirstIntersect();
-					if (intersects){
-						this.mesh.lookAt(intersects.point);
-					}
-				}
-				break;
-		}
-		this.canRotate = this.rotating = this.canPan = this.pan = false;
+		this.stopActions(btn == controls.mouse.LEFT);
 	},
 	onMouseMove: function(p, dx, dy){
 		this.mouse.x = (p.x / global.innerWidth ) * 2 - 1;
@@ -110,16 +142,7 @@ module.exports = {
 			intersects.mesh.material.setColor();
 		}*/
 		
-		if (this.canRotate){
-			this.rotating = true;
-			this.angularVelocity.y = dx * 0.002;
-			this.angularVelocity.x = dy * 0.002;
-		}
-		if (this.canPan){
-			this.pan = true;
-			this.velocity.x -= dx / 10;
-			this.velocity.y += dy / 10;
-		}
+		this.startActions(dx, dy);
 	},
 	onMouseWheel: function(delta){
 		this.velocity.z += delta / 10;

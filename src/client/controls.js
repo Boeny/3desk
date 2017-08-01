@@ -45,7 +45,7 @@ module.exports = {
 				let handlerName = this.handlers[eventName];
 				
 				if (obj[handlerName]){
-					document.addEventListener(eventName, (e) => {
+					this.renderer.domElement.addEventListener(eventName, (e) => {
 						if (!this.enabled) return;
 						this.eventHandler(e, obj, handlerName);
 					}, false);
