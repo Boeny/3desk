@@ -4,6 +4,7 @@
   "description": "webGL 3d file manager",
   "scripts": {
     "build": "webpack",
+	"git-pages": "webpack --config=webpack.config.gitpages.js",
     "prod": "webpack --config=webpack.config.prod.js"
   },
   "repository": {
