@@ -1,4 +1,4 @@
-const dest = __dirname+'/dist/js';
+const dest = __dirname+'/../dist/js';
 const fs = require('fs');
 
 fs.readdir(dest, (err, files) => {
@@ -13,14 +13,8 @@ fs.readdir(dest, (err, files) => {
 
 const Uglify = require('uglifyjs-webpack-plugin');
 
-module.exports = {
-	entry: __dirname+'/src/client/index.js',
-	output: {
-		filename: 'index.js',
-		path: dest
-	},
-	
+module.exports = require('./webpack.base')({
 	plugins: [
 		new Uglify()
 	]
-}
+});

@@ -3,9 +3,10 @@
   "version": "0.0.1",
   "description": "webGL 3d file manager",
   "scripts": {
-    "build": "webpack",
-	"git-pages": "webpack --config=webpack.config.gitpages.js",
-    "prod": "webpack --config=webpack.config.prod.js"
+    "dev": "webpack --env=dev",
+    "server": "webpack-dev-server --env=server --open",
+    "prod": "webpack --env=prod",
+    "pages": "webpack --env=gitpages"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,8 @@
   "homepage": "https://github.com/boeny/3desk#readme",
   "devDependencies": {
     "uglifyjs-webpack-plugin": "^1.0.0-beta.1",
-    "webpack": "^3.4.1"
+    "webpack": "^3.4.1",
+    "webpack-dev-server": "^2.6.1",
+    "webpack-merge": "^4.1.0"
   }
 }

@@ -4,6 +4,7 @@ module.exports = {
 	onMouseDown: function(btn){
 		switch (btn){
 			case controls.mouse.LEFT:
+			case controls.mouse.RIGHT:
 				this.canRotate = true;
 				break;
 			
@@ -18,18 +19,34 @@ module.exports = {
 	},
 	
 	onMouseMove: function(p, d){
-		this.mouse.x = (p.x / global.innerWidth ) * 2 - 1;
-		this.mouse.y = -(p.y / global.innerHeight ) * 2 + 1;
+		this.mouse.x = 2 * p.x / global.innerWidth - 1;
+		this.mouse.y = 1 - 2 * p.y / global.innerHeight;
 		
-		/*let intersects = this.getFirstIntersect();
+		let intersects = this.getFirstIntersect();
 		if (intersects){
-			intersects.mesh.material.setColor();
-		}*/
+			if (!this.hoveredObject){
+				this.hoveredObject = intersects.object;
+				this.hoveredObject.onMouseEnter();
+			}
+		}
+		else{
+			if (this.hoveredObject){
+				this.hoveredObject.onMouseLeave();
+				this.hoveredObject = null;
+			}
+		}
 		
 		this.startActions(d);
 	},
 	
 	onMouseWheel: function(delta){
-		this.velocity.z += delta / 10;
+		this.cameraVelocity.z += delta * this.getSpeedByCamera(this.zoomSpeed);
+	},
+	
+	onContextMenu: function(){
+		let intersects = this.getFirstIntersect();
+		if (intersects){
+			intersects.object.onClick();
+		}
 	}
 };
