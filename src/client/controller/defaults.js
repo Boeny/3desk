@@ -1,10 +1,4 @@
-var parts = [
-	//'touch',
-	'mouse',
-	//'keys',
-];
-
-var Controller = {
+module.exports = {
 	mesh: new THREE.Object3D(),
 	velocity: new THREE.Vector3(),
 	angularVelocity: new THREE.Vector3(),
@@ -20,6 +14,10 @@ var Controller = {
 	moveLeft: false,
 	moveRight: false,
 	
+	intersects: null,// THREE.Raycaster.Intersection,
+	hoveredObject: null,// Shape,
+	
+	canDrag: false,
 	canRotate: false,
 	rotating: false,
 	canPan: false,
@@ -30,12 +28,6 @@ var Controller = {
 	panSpeed: 0.1,
 	zoomSpeed: 0.1,
 	
-	prevTime: null,
+	prevTime: 0,
 	PI_2: Math.PI / 2,
 };
-
-for (var i = 0; i < parts.length; i++){
-	merge(Controller, require('./controller.'+parts[i]));
-}
-
-module.exports = Controller;

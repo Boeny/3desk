@@ -1,4 +1,4 @@
-var controls = require('./controls');
+var controls = require('../controls');
 
 module.exports = {
 	onKeyDown: function (key) {

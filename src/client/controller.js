@@ -1,20 +1,20 @@
-var controls = require('./controls');
-var shapes = require('./shapes');
-
-var Controller = {
-	Start: function(){
+class Controller {
+	Start(objects){
+		this.controls = objects.controls;
+		this.shapes = objects.shapes;
+		
 		this.camera.position.z = this.cameraInitialDistance;
 		this.renderer.setClearColor(0xcccccc);
-		controls.enabled = true;
+		this.controls.enabled = true;
 		
 		this.mesh.add(this.camera);
 		this.rotation = this.mesh.rotation;
 		
 		this.prevTime = performance.now();
-	},
+	}
 	
-	Update: function(){
-		if (!controls.enabled) return;
+	Update(){
+		if (!this.controls.enabled) return;
 		
 		var time = performance.now();
 		var delta = 1 - ( time - this.prevTime ) / 100;
@@ -44,25 +44,31 @@ var Controller = {
 		this.camera.position.z += this.cameraVelocity.z;
 		
 		this.prevTime = time;
-	},
+	}
 	
-	getFirstIntersect: function(){
+	getFirstIntersect(){
 		// update the picking ray with the camera and mouse position
 		this.raycaster.setFromCamera(this.mouse, this.camera);
 		
 		// calculate objects intersecting the picking ray
-		let intersects = this.raycaster.intersectObjects( shapes.mesh );
+		let intersects = this.raycaster.intersectObjects( this.shapes.mesh );
 		
 		return intersects.length > 0 ? intersects[0] : null;
-	},
+	}
+	
+	intersectAction(action, ...args){
+		if (this.hoveredObject && this.hoveredObject[action]){
+			this.hoveredObject[action](...args);
+		}
+	}
 	
 	//----------------------------------------------- INTERACTIONS
 	
-	getSpeedByCamera: function(speed){
+	getSpeedByCamera(speed){
 		return speed * this.camera.position.z / this.cameraInitialDistance;
-	},
+	}
 	
-	startActions: function(d){
+	startActions(d){
 		if (this.canRotate){
 			this.rotating = true;
 			this.angularVelocity.x = d.y * this.rotSpeed;
@@ -74,16 +80,15 @@ var Controller = {
 			this.velocity.x -= d.x * k;
 			this.velocity.y += d.y * k;
 		}
-	},
-	stopActions: function(clickCondition){
-		if (clickCondition && !this.rotating){
-			let intersects = this.getFirstIntersect();
-			if (intersects){
-				intersects.object.onClick();
-			}
+	}
+	
+	stopActions(btn, p){
+		if (!this.rotating){
+			this.intersectAction('onClick', btn, p);
 		}
 		this.canRotate = this.rotating = this.canPan = this.pan = false;
 	}
 };
 
-module.exports = merge(Controller, require('./controller.config'));
+require('./controller/config')(Controller.prototype);
+module.exports = { Controller };
