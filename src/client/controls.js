@@ -12,6 +12,7 @@ var defaults = {
 		A: 65,
 		S: 83,
 		D: 68,
+		CTRL: false
 	},
 	mouse: {
 		LEFT: 0,
@@ -63,6 +64,7 @@ export class Controls
 				if (obj[handlerName]){
 					this.renderer.domElement.addEventListener(eventName, (e) => {
 						if (!this.enabled) return;
+						this.keys.CTRL = e.ctrlKey;
 						this.eventHandler(e, obj, handlerName);
 					}, false);
 				}

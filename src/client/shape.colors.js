@@ -1,32 +1,35 @@
-export default class Colors
+import Component from './component';
+
+export default class Colors extends Component
 {
-	constructor(shape, activateCondition){
-		this.shape = shape;
-		this.material = shape.material;
-		this.controls = shape.controls;
+	constructor(parent, activateCondition){
+		super(parent);
+		this.material = parent.material;
 		
-		shape.isActive = false;
-		this.oldColor = [];
+		this.oldColor = this.deactiveColor = this.color;
 		
-		this.activateCondition = activateCondition;
+		this.activateCondition = activateCondition || function(){return true};
 	}
 	
 	get color(){
-		let c = this.material.color;
-		return [c.r, c.g, c.b];
+		return this.material.color.getHex();
 	}
-	set color(arrayRGB){
-		this.material.color.setRGB(...arrayRGB);
+	set color(c){
+		this.material.color.set(c);
 	}
 	
 	get activeColor(){
-		return [0.5, 0.3, 0.3];
+		return 0x885555;
 	}
 	get hoverColor(){
-		return this.shape.isActive ? [0.7, 0.5, 0.5] : [0.5, 0.5, 0.5];
+		return this.parent.isActive ? 0xbb8888 : 0x888888;
 	}
 	get downColor(){
-		return this.shape.isActive ? [0.5, 0.3, 0.3] : [0.3, 0.3, 0.3];
+		return this.parent.isActive ? 0x885555 : 0x555555;
+	}
+	
+	toggle(status){
+		this.oldColor = this.color = this[status ? 'activeColor' : 'deactiveColor'];
 	}
 	
 	//---------------------------------------- EVENTS
@@ -41,17 +44,13 @@ export default class Colors
 	}
 	
 	onMouseUp(btn, p){
-		if (btn == this.controls.mouse.LEFT && this.activateCondition()){
-			this.shape.isActive = true;
-			this.oldColor = this.activeColor;
-		}
-		
 		this.color = this.hoverColor;
 	}
 	
 	onMouseDown(btn, p){
+		if (this.activateCondition()){
+			this.parent.isActive = true;
+		}
 		this.color = this.downColor;
 	}
-	
-	onMouseMove(p, d){}
 }

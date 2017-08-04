@@ -18,37 +18,58 @@ class Controller {
 		
 		var time = performance.now();
 		var delta = 1 - ( time - this.prevTime ) / 100;
+		var screenHasChanged = false;
 		
-		// decrease speed
-		this.velocity.x *= delta;
-		this.velocity.y *= delta;
-		this.velocity.z *= delta;
+		if (this.hasVelocityChanged('velocityLength', 'velocity'))// moving
+		{
+			// decrease speed
+			this.velocity.x *= delta;
+			this.velocity.y *= delta;
+			this.velocity.z *= delta;
+			
+			this.mesh.translateX(this.velocity.x);
+			this.mesh.translateY(this.velocity.y);
+			this.mesh.translateZ(this.velocity.z);
+			
+			this.velocityLength = this.velocity.length();
+			screenHasChanged = true;
+		}
 		
-		if (this.moveForward)	this.velocity.z -= 4.0;
-		if (this.moveBackward)	this.velocity.z += 4.0;
-		if (this.moveLeft)		this.velocity.x -= 4.0;
-		if (this.moveRight)		this.velocity.x += 4.0;
+		if (this.hasVelocityChanged('angularVelocityLength', 'angularVelocity'))// rotation
+		{
+			this.angularVelocity.x *= delta;
+			this.angularVelocity.y *= delta;
+			
+			this.rotation.y -= this.angularVelocity.y;
+			this.rotation.x = Math.max( -this.PI_2, Math.min(this.PI_2, this.rotation.x - this.angularVelocity.x) );
+			
+			this.angularVelocityLength = this.angularVelocity.length();
+			screenHasChanged = true;
+		}
 		
-		this.mesh.translateX(this.velocity.x);
-		this.mesh.translateY(this.velocity.y);
-		this.mesh.translateZ(this.velocity.z);
+		if (this.hasVelocityChanged('cameraVelocityLength', 'cameraVelocity'))// zoom
+		{
+			this.cameraVelocity.z *= delta;
+			this.camera.position.z += this.cameraVelocity.z;
+			
+			this.cameraVelocityLength = this.cameraVelocity.length();
+			screenHasChanged = true;
+		}
 		
-		// rotation
-		this.angularVelocity.x *= delta;
-		this.angularVelocity.y *= delta;
-		
-		this.rotation.y -= this.angularVelocity.y;
-		this.rotation.x = Math.max( -this.PI_2, Math.min(this.PI_2, this.rotation.x - this.angularVelocity.x) );
-		
-		this.cameraVelocity.z *= delta;
-		this.camera.position.z += this.cameraVelocity.z;
+		if (screenHasChanged){
+			this.shapes.updateScreenElements();
+		}
 		
 		this.prevTime = time;
 	}
 	
-	getFirstIntersect(){
+	hasVelocityChanged(cachedProp, prop){
+		return this[cachedProp] && this[cachedProp] > this.minVelocity || this[prop].length() > this.minVelocity
+	}
+	
+	getFirstIntersect(p){
 		// update the picking ray with the camera and mouse position
-		this.raycaster.setFromCamera(this.mouse, this.camera);
+		this.raycaster.setFromCamera(p.toWorld(), this.camera);
 		
 		// calculate objects intersecting the picking ray
 		let intersects = this.raycaster.intersectObjects( this.shapes.mesh );

@@ -10,7 +10,7 @@ var data = [
 	{name: 'package.json',	isFolder: false},
 	{name: 'README.md',		isFolder: false},
 	{name: 'webpack.config.js',	isFolder: false},
-	{name: 'webpack.config.prod.js',	isFolder: false},
+	{name: 'webpack.config.prod.js',	isFolder: false}
 ];
 
 export class Shapes {
@@ -28,8 +28,34 @@ export class Shapes {
 		let { Shape } = require('./shape');
 		
 		for (var i = 0; i < data.length; i++) {
-			let mesh = new Shape(data[i].name, geometry, objects.controls);
+			let mesh = new Shape(this, data[i].name, geometry, objects.controls);
 			this.mesh.push(mesh);
+		}
+		
+		this.activeObjects = {};
+	}
+	
+	addToActive(obj){
+		this.activeObjects[obj.name] = obj;
+	}
+	
+	removeFromActive(obj){
+		delete this.activeObjects[name];
+	}
+	
+	toggleActive(obj, status){
+		obj.isActive = status;
+	}
+	
+	toggleActiveAll(status){
+		for (var name in this.activeObjects){
+			this.toggleActive(this.activeObjects[name], status);
+		}
+	}
+	
+	updateScreenElements(){
+		for (var i = 0; i < this.mesh.length; i++){
+			this.mesh[i].updateScreenElements();
 		}
 	}
 }

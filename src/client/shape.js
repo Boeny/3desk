@@ -4,7 +4,7 @@ import Drag from './shape.drag';
 
 export class Shape extends THREE.Mesh
 {
-	constructor(name, geometry, controls){
+	constructor(parent, name, geometry, controls){
 		let material = new THREE.MeshPhongMaterial({
 			color: new THREE.Color().setHSL( random(0.5, 0.8), 0.75, random(0.75, 1) ),
 			specular: 0x999999,
@@ -14,6 +14,7 @@ export class Shape extends THREE.Mesh
 		
 		super(geometry, material);
 		
+		this._parent = parent;// to avoid a conflicts with Mesh.parent
 		this.controls = controls;
 		this.name = name;
 		
@@ -24,36 +25,42 @@ export class Shape extends THREE.Mesh
 		this.castShadow = true;
 		this.receiveShadow = true;
 		
-		this.textElem = new TextElement(name);
+		this.textElem = new TextElement(name, this.position.toScreenPos(this._parent.camera));
 		
+		let components = ['colors','drag'];
 		this.drag = new Drag(this);
-		this.colors = new Colors(this, () => !this.drag.dragging);
+		this.colors = new Colors(this);
+		
+		let events = ['onMouseEnter','onMouseLeave','onMouseUp','onMouseDown','onMouseMove'];
+		for (var i = 0; i < events.length; i++){
+			let e = events[i];
+			
+			this[e] = (...args) => {
+				for (var i = 0; i < components.length; i++){
+					this[components[i]][e](...args);
+				}
+			};
+		}
+		
+		this._isActive = false;
 	}
 	
-	//---------------------------------------- EVENTS
-	
-	onMouseEnter(){
-		this.colors.onMouseEnter();
-		this.drag.onMouseEnter();
+	move(){
+		
 	}
 	
-	onMouseLeave(){
-		this.colors.onMouseLeave();
-		this.drag.onMouseLeave();
+	get isActive(){
+		return this._isActive;
 	}
 	
-	onMouseUp(btn, p){
-		this.colors.onMouseUp(btn, p);
-		this.drag.onMouseUp(btn, p);
+	set isActive(status){
+		if (status && !this.controls.keys.CTRL) this._parent.toggleActiveAll(false);
+		this._isActive = status;
+		this.colors.toggle(status);
+		this._parent[status ? 'addToActive' : 'removeFromActive'](this);
 	}
 	
-	onMouseDown(btn, p){
-		this.colors.onMouseDown(btn, p);
-		this.drag.onMouseDown(btn, p);
-	}
-	
-	onMouseMove(p, d){
-		this.colors.onMouseMove(p, d);
-		this.drag.onMouseMove(p, d);
+	updateScreenElements(){
+		this.textElem.update(this.position.toScreenPos(this._parent.camera));
 	}
 }

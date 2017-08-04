@@ -1,40 +1,41 @@
-export default class Drag
+import Component from './component';
+
+export default class Drag extends Component
 {
-	constructor(shape){
-		this.shape = shape;
-		this.controls = shape.controls;
-		
-		this.canDrag = false;
-		this.dragging = false;
+	constructor(parent){
+		super(parent);
+		stop();
 	}
 	
-	stopDrag(){
-		if (this.dragging){
-			console.log('stop dragging');
-		}
-		this.canDrag = this.dragging = false;
+	stop(){
+		this.startPoint = this.process = null;
 	}
 	
 	//---------------------------------------- EVENTS
 	
-	onMouseEnter(){}
-	
 	onMouseLeave(){
-		this.stopDrag();
+		this.stop();
 	}
 	
 	onMouseUp(btn, p){
-		this.stopDrag();
+		this.stop();
 	}
 	
-	onMouseDown(btn, p){
-		this.canDrag = true;
+	onMouseDown(btn, p, proj){
+		this.startPoint = proj.point.clone();
 	}
 	
-	onMouseMove(p, d){
-		if (this.canDrag){
-			this.dragging = true;
-			console.log('start dragging');
+	onMouseMove(p, d, proj){
+		if (this.startPoint){
+			this.process = true;
+			
+			let diff = proj.point.clone();
+			diff.sub(this.startPoint);
+			
+			this.parent.translateX(diff.x);
+			this.parent.translateY(diff.y);
+			
+			this.startPoint = proj.point;
 		}
 	}
 }

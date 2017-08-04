@@ -1,13 +1,22 @@
 module.exports = {
+	canRotate: false,
+	rotating: false,
+	canPan: false,
+	pan: false,
+	
+	rotSpeed: 0.01,
+	panSpeed: 0.1,
+	zoomSpeed: 0.1,
+	
 	onMouseDown: function(btn, p){
-		this.intersectAction('onMouseDown', btn, p);
+		this.intersectAction('onMouseDown', btn, p, this.intersects);
 		
 		switch (btn){
-			case this.controls.mouse.LEFT:
-				break;
-			
 			case this.controls.mouse.RIGHT:
 				this.canRotate = true;
+				
+			case this.controls.mouse.LEFT:
+				if (!this.hoveredObject && !this.controls.keys.CTRL) this.shapes.toggleActiveAll(false);
 				break;
 			
 			case this.controls.mouse.MIDDLE:
@@ -22,10 +31,8 @@ module.exports = {
 	},
 	
 	onMouseMove: function(p, d){
-		this.mouse.x = 2 * p.x / global.innerWidth - 1;
-		this.mouse.y = 1 - 2 * p.y / global.innerHeight;
+		this.intersects = this.getFirstIntersect(p);
 		
-		this.intersects = this.getFirstIntersect();
 		if (this.intersects)
 		{
 			// new object or above an other object
@@ -36,7 +43,7 @@ module.exports = {
 				this.intersectAction('onMouseEnter');
 			}
 			else{// above the same object
-				this.intersectAction('onMouseMove', p, d);
+				this.intersectAction('onMouseMove', p, d, this.intersects);
 			}
 		}
 		else{
