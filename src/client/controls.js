@@ -1,4 +1,4 @@
-module.exports = {
+var defaults = {
 	enabled: false,
 	enableKeys: true,
 	
@@ -12,6 +12,7 @@ module.exports = {
 		A: 65,
 		S: 83,
 		D: 68,
+		CTRL: false
 	},
 	mouse: {
 		LEFT: 0,
@@ -35,18 +36,35 @@ module.exports = {
 		touchend: 'onTouchEnd',
 		touchmove: 'onTouchMove',
 		
-	},
+	}
+};
+
+export class Controls
+{
+	constructor(){
+		merge(this, defaults);
+		
+		// Hook pointer lock state change events
+		document.addEventListener('pointerlockchange', (e) => this.onPointerLockingChange(e), false);
+		document.addEventListener('mozpointerlockchange', (e) => this.onPointerLockingChange(e), false);
+		document.addEventListener('webkitpointerlockchange', (e) => this.onPointerLockingChange(e), false);
+		
+		document.addEventListener('pointerlockerror', (e) => this.onPointerLockingError(e), false);
+		document.addEventListener('mozpointerlockerror', (e) => this.onPointerLockingError(e), false);
+		document.addEventListener('webkitpointerlockerror', (e) => this.onPointerLockingError(e), false);
+	}
 	
-	Start: function(){
-		for (var i = 0; i < this.objects.length; i++){
-			let obj = this.objects[i];
+	Start(objects){
+		for (var name in objects){
+			let obj = objects[name];
 			
 			for (let eventName in this.handlers){
 				let handlerName = this.handlers[eventName];
 				
 				if (obj[handlerName]){
-					document.addEventListener(eventName, (e) => {
+					this.renderer.domElement.addEventListener(eventName, (e) => {
 						if (!this.enabled) return;
+						this.keys.CTRL = e.ctrlKey;
 						this.eventHandler(e, obj, handlerName);
 					}, false);
 				}
@@ -58,18 +76,9 @@ module.exports = {
 			this.camera.updateProjectionMatrix();
 			this.renderer.setSize(global.innerWidth, global.innerHeight);
 		}, false);
-		
-		// Hook pointer lock state change events
-		document.addEventListener('pointerlockchange', (e) => this.onPointerLockingChange(e), false);
-		document.addEventListener('mozpointerlockchange', (e) => this.onPointerLockingChange(e), false);
-		document.addEventListener('webkitpointerlockchange', (e) => this.onPointerLockingChange(e), false);
-		
-		document.addEventListener('pointerlockerror', (e) => this.onPointerLockingError(e), false);
-		document.addEventListener('mozpointerlockerror', (e) => this.onPointerLockingError(e), false);
-		document.addEventListener('webkitpointerlockerror', (e) => this.onPointerLockingError(e), false);
-	},
+	}
 	
-	eventHandler: function(e, obj, handlerName){
+	eventHandler(e, obj, handlerName){
 		var handler = obj[handlerName].bind(obj);
 		
 		e.preventDefault();
@@ -84,8 +93,10 @@ module.exports = {
 			case 'onMouseMove':
 				return handler(
 					new THREE.Vector2(e.clientX, e.clientY),
-					e.movementX || e.mozMovementX || e.webkitMovementX || 0,
-					e.movementY || e.mozMovementY || e.webkitMovementY || 0
+					new THREE.Vector2(
+						e.movementX || e.mozMovementX || e.webkitMovementX || 0,
+						e.movementY || e.mozMovementY || e.webkitMovementY || 0
+					)
 				);
 			
 			case 'onMouseWheel':
@@ -94,7 +105,7 @@ module.exports = {
 			case 'onClick':
 			case 'onMouseUp':
 			case 'onMouseDown':
-				return handler(e.button, e.clientX, e.clientY);
+				return handler(e.button, new THREE.Vector2(e.clientX, e.clientY));
 			
 			case 'onTouchStart':
 			case 'onTouchMove':
@@ -110,17 +121,17 @@ module.exports = {
 			default:
 				return handler();
 		}
-	},
+	}
 	
-	onPointerLockingError: function(){},
-	onPointerLockingChange: function(){},
+	onPointerLockingError(){}
+	onPointerLockingChange(){}
 	
 	// Ask the browser to lock the pointer
-	lockPointer: function(elem){
+	lockPointer(elem){
 		let lock = elem.requestPointerLock || elem.mozRequestPointerLock || elem.webkitRequestPointerLock;
 		lock && lock();
-	},
-	isPointerLocked: function(elem){
+	}
+	isPointerLocked(elem){
 		return document.pointerLockElement === elem || document.mozPointerLockElement === elem || document.webkitPointerLockElement === elem;
 	}
-};
+}
