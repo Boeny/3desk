@@ -33,9 +33,6 @@
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
 /******/
-/******/ 	// identity function for calling harmony imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
-/******/
 /******/ 	// define getter function for harmony exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		if(!__webpack_require__.o(exports, name)) {
@@ -63,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -287,6 +284,104 @@ module.exports = {
 /* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+
+global.random = function(min, max){
+	return Math.random() * (max - min) + min;
+};
+
+__webpack_require__(4)([
+	__webpack_require__(6),
+	__webpack_require__(7),
+	__webpack_require__(2),
+	__webpack_require__(1),
+]);
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+/* WEBPACK VAR INJECTION */(function(global) {var { Start, Update } = __webpack_require__(5);
+var options, scene, camera, renderer, objects = [];
+//global.THREE = require('three');
+
+global.onload = function(){
+	scene = new THREE.Scene();
+	
+	camera = new THREE.PerspectiveCamera(options.viewAngle || 60, global.innerWidth / global.innerHeight, 1, 1000);
+	camera.lookAt( scene.position );
+	
+	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer.setPixelRatio( global.devicePixelRatio );
+	renderer.setSize( global.innerWidth, global.innerHeight );
+	document.body.appendChild( renderer.domElement );
+	
+	Start(scene, camera, renderer, objects);
+	render();
+};
+
+function render() {
+	requestAnimationFrame(render);
+	Update();
+	renderer.render(scene, camera);// render the scene
+}
+
+module.exports = function(models, _opts){
+	if (!models) return;
+	
+	options = _opts || {};// merge!!!!!!!!!!!!
+	for (var i = 0; i < models.length; i++){
+		objects.push(models[i]);
+	}
+};
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports) {
+
+var objects, updates = [];
+
+exports.Start = function(scene, camera, renderer, objs){
+	objects = objs;
+	
+	for (var i in objects){
+		let o = objects[i];
+		
+		o.objects = objs;
+		o.scene = scene;
+		o.camera = camera;
+		o.renderer = renderer;
+		
+		o.Start();
+		
+		if (o.mesh){
+			if (o.mesh instanceof Array){
+				for (var j = 0; j < o.mesh.length; j++){
+					scene.add(o.mesh[j]);
+				}
+			}
+			else{
+				scene.add(o.mesh);
+			}
+		}
+		
+		if (o.Update) updates.push(o.Update.bind(o));
+	}
+};
+
+exports.Update = function(){
+	for (var i = 0; i < updates.length; i++){
+		updates[i]();
+	}
+};
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
 /* WEBPACK VAR INJECTION */(function(global) {var controls = __webpack_require__(1);
 var shapes = __webpack_require__(2);
 
@@ -468,7 +563,7 @@ module.exports = {
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
 
 /***/ }),
-/* 4 */
+/* 7 */
 /***/ (function(module, exports) {
 
 module.exports = {
@@ -485,104 +580,6 @@ module.exports = {
 		var light = new THREE[type+'Light'](...args);
 		if (pos) light.position.set(...pos);
 		return light;
-	}
-};
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-/* WEBPACK VAR INJECTION */(function(global) {var { Start, Update } = __webpack_require__(7);
-var options, scene, camera, renderer, objects = [];
-//global.THREE = require('three');
-
-global.onload = function(){
-	scene = new THREE.Scene();
-	
-	camera = new THREE.PerspectiveCamera(options.viewAngle || 60, global.innerWidth / global.innerHeight, 1, 1000);
-	camera.lookAt( scene.position );
-	
-	renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.setPixelRatio( global.devicePixelRatio );
-	renderer.setSize( global.innerWidth, global.innerHeight );
-	document.body.appendChild( renderer.domElement );
-	
-	Start(scene, camera, renderer, objects);
-	render();
-};
-
-function render() {
-	requestAnimationFrame(render);
-	Update();
-	renderer.render(scene, camera);// render the scene
-}
-
-module.exports = function(models, _opts){
-	if (!models) return;
-	
-	options = _opts || {};// merge!!!!!!!!!!!!
-	for (var i = 0; i < models.length; i++){
-		objects.push(models[i]);
-	}
-};
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(global) {
-
-global.random = function(min, max){
-	return Math.random() * (max - min) + min;
-};
-
-__webpack_require__(5)([
-	__webpack_require__(3),
-	__webpack_require__(4),
-	__webpack_require__(2),
-	__webpack_require__(1),
-]);
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0)))
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports) {
-
-var objects, updates = [];
-
-exports.Start = function(scene, camera, renderer, objs){
-	objects = objs;
-	
-	for (var i in objects){
-		let o = objects[i];
-		
-		o.objects = objs;
-		o.scene = scene;
-		o.camera = camera;
-		o.renderer = renderer;
-		
-		o.Start();
-		
-		if (o.mesh){
-			if (o.mesh instanceof Array){
-				for (var j = 0; j < o.mesh.length; j++){
-					scene.add(o.mesh[j]);
-				}
-			}
-			else{
-				scene.add(o.mesh);
-			}
-		}
-		
-		if (o.Update) updates.push(o.Update.bind(o));
-	}
-};
-
-exports.Update = function(){
-	for (var i = 0; i < updates.length; i++){
-		updates[i]();
 	}
 };
 
