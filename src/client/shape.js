@@ -25,11 +25,10 @@ export class Shape extends THREE.Mesh
 		this.castShadow = true;
 		this.receiveShadow = true;
 		
-		this.textElem = new TextElement(name, this.position.toScreenPos(this._parent.camera));
-		
-		let components = ['colors','drag'];
+		let components = ['colors','drag','title'];
 		this.drag = new Drag(this);
 		this.colors = new Colors(this);
+		this.title = new TextElement(this, name, this.position.toScreenPos(this._parent.camera));
 		
 		let events = ['onMouseEnter','onMouseLeave','onMouseUp','onMouseDown','onMouseMove'];
 		for (var i = 0; i < events.length; i++){
@@ -42,25 +41,33 @@ export class Shape extends THREE.Mesh
 			};
 		}
 		
-		this._isActive = false;
+		this.isActive = false;
 	}
 	
-	move(){
-		
-	}
-	
-	get isActive(){
-		return this._isActive;
-	}
-	
-	set isActive(status){
-		if (status && !this.controls.keys.CTRL) this._parent.toggleActiveAll(false);
-		this._isActive = status;
+	toggleActive(status){
+		if (this.controls.keys.CTRL){
+			status = !this.isActive;
+		}
+		else{
+			if (status){
+				this._parent.toggleActiveAll(false);
+			}
+		}
+		this.isActive = status;
 		this.colors.toggle(status);
 		this._parent[status ? 'addToActive' : 'removeFromActive'](this);
 	}
 	
+	move(diff){
+		this.translateX(diff.x);
+		this.translateY(diff.y);
+		this.updateScreenElements();
+	}
+	
 	updateScreenElements(){
-		this.textElem.update(this.position.toScreenPos(this._parent.camera));
+		let pos = this.position.clone();
+		let cam = this._parent.camera.position.clone();
+		cam.sub(pos);
+		this.title.update(pos.toScreenPos(this._parent.camera), cam.length() * 0.01);
 	}
 }

@@ -1,22 +1,21 @@
-var data = [
-	{name: '.git',	isFolder: true},
-	{name: '3d',	isFolder: true},
-	{name: 'dist',	isFolder: true},
-	{name: 'simple-server',	isFolder: true},
-	{name: 'src',			isFolder: true},
+var data = {
+	'.git': {items: {}, size: 20},
+	'3d': {items: {}, size: 20},
+	'dist': {items: {}, size: 30},
+	'simple-server': {items: {}, size: 20},
+	'src': {items: {}, size: 10},
 	
-	{name: 'LICENSE',		isFolder: false},
-	{name: '.gitignore',	isFolder: false},
-	{name: 'package.json',	isFolder: false},
-	{name: 'README.md',		isFolder: false},
-	{name: 'webpack.config.js',	isFolder: false},
-	{name: 'webpack.config.prod.js',	isFolder: false}
-];
+	'LICENSE': {size: 10},
+	'.gitignore': {size: 1},
+	'package.json': {size: 10},
+	'README.md': {size: 10},
+	'webpack.config.js': {size: 20},
+	'webpack.config.prod.js': {size: 10},
+};
 
 export class Shapes {
 	Start(objects){
 		this.mesh = [];
-		let geometry = new THREE.BoxGeometry(20, 20, 20);
 		
 		/*for (var i = 0; i < geometry.faces.length; i++) {
 			let face = geometry.faces[i];
@@ -27,8 +26,10 @@ export class Shapes {
 		
 		let { Shape } = require('./shape');
 		
-		for (var i = 0; i < data.length; i++) {
-			let mesh = new Shape(this, data[i].name, geometry, objects.controls);
+		for (var name in data) {
+			let size = data[name].size;
+			let geometry = new THREE.BoxGeometry(size, size, size);
+			let mesh = new Shape(this, name, geometry, objects.controls);
 			this.mesh.push(mesh);
 		}
 		
@@ -44,7 +45,7 @@ export class Shapes {
 	}
 	
 	toggleActive(obj, status){
-		obj.isActive = status;
+		obj.toggleActive(status);
 	}
 	
 	toggleActiveAll(status){

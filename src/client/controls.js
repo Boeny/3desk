@@ -35,7 +35,6 @@ var defaults = {
 		touchstart: 'onTouchStart',
 		touchend: 'onTouchEnd',
 		touchmove: 'onTouchMove',
-		
 	}
 };
 
@@ -62,7 +61,7 @@ export class Controls
 				let handlerName = this.handlers[eventName];
 				
 				if (obj[handlerName]){
-					this.renderer.domElement.addEventListener(eventName, (e) => {
+					document.body.addEventListener(eventName, (e) => {
 						if (!this.enabled) return;
 						this.keys.CTRL = e.ctrlKey;
 						this.eventHandler(e, obj, handlerName);

@@ -32,8 +32,7 @@ export default class Drag extends Component
 			let diff = proj.point.clone();
 			diff.sub(this.startPoint);
 			
-			this.parent.translateX(diff.x);
-			this.parent.translateY(diff.y);
+			this.parent.move(diff);
 			
 			this.startPoint = proj.point;
 		}

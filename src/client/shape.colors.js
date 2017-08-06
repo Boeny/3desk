@@ -49,7 +49,7 @@ export default class Colors extends Component
 	
 	onMouseDown(btn, p){
 		if (this.activateCondition()){
-			this.parent.isActive = true;
+			this.parent.toggleActive(true);
 		}
 		this.color = this.downColor;
 	}

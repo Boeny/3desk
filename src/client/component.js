@@ -10,4 +10,11 @@ export default class Component
 	onMouseUp(btn, p){}
 	onMouseDown(btn, p){}
 	onMouseMove(p, d){}
+	onClick(btn, p){}
+	onMouseWheel(d){}
+	onContextMenu(){}
+	
+	onTouchStart(points){}
+	onTouchEnd(points){}
+	onTouchMove(points){}
 }
